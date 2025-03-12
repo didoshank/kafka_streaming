@@ -3,15 +3,36 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 from airflow.hooks.base import BaseHook
 
-
-def stream_data():
+def get_data():
     import json
     import requests
 
     response = requests.get('https://randomuser.me/api/')
     response.raise_for_status()
-    data = response.json()['results'][0]
-    print(json.dumps(data,indent=1))
+    result = response.json()['results'][0]
+    return result
+
+def fromat_data(result):
+    data = {}
+    data['first_name'] = result['name']['first']
+    data['last_name'] = result['name']['last']
+    data['gender'] = result['gender']
+    data['address'] = str(result['location']['street']['number']+" "+result['location']['street']['name'])
+    data['postcode'] = result['location']['postcode']
+    data['email'] = result['email']
+    data['dob'] = result['dob']['date'][:10]
+    data['registered_date'] = result['registered']['date'][:10]
+    data['phone'] = result['phone']
+    data['username'] = result['login']['username']
+    data['picture'] = result['picture']['medium']
+
+    return data
+
+
+
+def stream_data():
+    import json
+    
 
     
 
